@@ -84,6 +84,9 @@ const SOURCES=[
   {n:"Standard Ebooks",d:"Klasik, EPUB rapi",u:q=>`https://standardebooks.org/ebooks?query=${enc(q)}`},
   {n:"Open Library",d:"Unduh atau pinjam",u:q=>`https://openlibrary.org/search?q=${enc(q)}&has_fulltext=true`},
   {n:"Internet Archive",d:"Arsip teks EPUB",u:q=>`https://archive.org/search?query=${enc(q)}&and%5B%5D=mediatype%3A%22texts%22`},
+  {n:"Google (sumber legal)",d:"EPUB/PDF di archive.org, Gutenberg, .edu, .gov",u:q=>`https://www.google.com/search?q=${enc(q+" filetype:epub OR filetype:pdf (site:archive.org OR site:gutenberg.org OR site:standardebooks.org OR site:.edu OR site:.gov)")}`},
+  {n:"Faded Page",d:"Domain publik Kanada",u:q=>`https://www.fadedpage.com/csearch.php?title=${enc(q)}`},
+  {n:"Smashwords",d:"Ebook gratis dari penulis",u:q=>`https://www.smashwords.com/books/search?query=${enc(q)}&price=free`},
   {n:"Google Play Books",d:"Beli/sampel resmi",u:q=>`https://play.google.com/store/search?q=${enc(q)}&c=books`},
   {n:"iPusnas",d:"Pinjam gratis (aplikasi)",u:()=>`https://ipusnas.id/`}
 ];
