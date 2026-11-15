@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Rak EPUB Gratis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: satu kolom sempit seperti kartu katalog perpustakaan; kotak cari di atas, hasil sebagai daftar kartu */
+:root{
+  --bg:#f3f5f1; --surface:#ffffff; --fg:#1d2420; --muted:#5f6b64; --line:#d9dfd9;
+  --accent:#2f6b4f; --accent-fg:#ffffff; --chip:#e6eee8; --warn:#8a5a12;
+  --display:"Fraunces",Georgia,serif; --body:"Inter",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --surface:#1b201d; --fg:#e6ebe7; --muted:#9aa69f; --line:#2c3430;
+  --accent:#7cc4a0; --accent-fg:#0f1612; --chip:#243029; --warn:#e2b46a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --surface:#1b201d; --fg:#e6ebe7; --muted:#9aa69f; --line:#2c3430;
+  --accent:#7cc4a0; --accent-fg:#0f1612; --chip:#243029; --warn:#e2b46a; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-weight:600;font-size:2rem;margin:0;text-wrap:balance;line-height:1.15}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+form{display:flex;gap:8px}
+input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg)}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;padding:12px 18px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0}
+.status{color:var(--muted);font-size:.95rem;margin:0}
+.list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.card{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.cover{width:56px;height:80px;flex:none;border-radius:4px;background:var(--chip);object-fit:cover}
+.info{min-width:0;display:flex;flex-direction:column;gap:6px}
+.t{font-weight:600;margin:0;overflow-wrap:anywhere}
+.a{color:var(--muted);font-size:.9rem;margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.btn{display:inline-block;text-decoration:none;font-size:.85rem;font-weight:600;padding:6px 10px;border-radius:8px}
+.btn.dl{background:var(--accent);color:var(--accent-fg)}
+.btn.alt{background:var(--chip);color:var(--fg)}
+.tag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--muted);align-self:flex-start}
+.tag.borrow{color:var(--warn)}
+.sources{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.src{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.src b{font-size:.95rem}.src span{font-size:.8rem;color:var(--muted)}
+.note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin:0}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Rak EPUB Gratis</h1>
+    <p class="sub">Ketik judul, dapat link EPUB legal tanpa iklan dari Open Library &amp; Internet Archive.</p>
+  </header>
+
+  <form id="f">
+    <input id="q" type="search" placeholder="Judul buku, mis. Sherlock Holmes" value="Sherlock Holmes" autocomplete="off" aria-label="Judul buku">
+    <button type="submit">Cari</button>
+  </form>
+
+  <section style="display:flex;flex-direction:column;gap:8px">
+    <p class="label">Hasil</p>
+    <p class="status" id="status">Mencari…</p>
+    <ul class="list" id="results"></ul>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:8px">
+    <p class="label">Cari juga di</p>
+    <div class="sources" id="sources"></div>
+  </section>
+
+  <p class="note">Hanya sumber legal: buku domain publik bisa langsung diunduh; buku berhak cipta biasanya hanya bisa dipinjam. Untuk buku Indonesia terbaru, coba aplikasi <b>iPusnas</b> (pinjam gratis dari Perpusnas).</p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const enc=encodeURIComponent;
+const SOURCES=[
+  {n:"Project Gutenberg",d:"70rb+ klasik, EPUB gratis",u:q=>`https://www.gutenberg.org/ebooks/search/?query=${enc(q)}`},
+  {n:"Standard Ebooks",d:"Klasik, EPUB rapi",u:q=>`https://standardebooks.org/ebooks?query=${enc(q)}`},
+  {n:"Open Library",d:"Unduh atau pinjam",u:q=>`https://openlibrary.org/search?q=${enc(q)}&has_fulltext=true`},
+  {n:"Internet Archive",d:"Arsip teks EPUB",u:q=>`https://archive.org/search?query=${enc(q)}&and%5B%5D=mediatype%3A%22texts%22`},
+  {n:"Google Play Books",d:"Beli/sampel resmi",u:q=>`https://play.google.com/store/search?q=${enc(q)}&c=books`},
+  {n:"iPusnas",d:"Pinjam gratis (aplikasi)",u:()=>`https://ipusnas.id/`}
+];
+function renderSources(q){
+  $("sources").innerHTML="";
+  SOURCES.forEach(s=>{const a=document.createElement("a");a.className="src";a.href=s.u(q);a.target="_blank";a.rel="noopener";
+    a.innerHTML="<b></b><span></span>";a.children[0].textContent=s.n;a.children[1].textContent=s.d;$("sources").appendChild(a);});
+}
+function card({title,author,cover,dl,page,borrow,src}){
+  const li=document.createElement("li");li.className="card";
+  const img=document.createElement(cover?"img":"div");img.className="cover";if(cover){img.src=cover;img.alt="";img.loading="lazy";img.onerror=()=>img.replaceWith(Object.assign(document.createElement("div"),{className:"cover"}));}
+  const info=document.createElement("div");info.className="info";
+  const t=document.createElement("p");t.className="t";t.textContent=title;
+  const a=document.createElement("p");a.className="a";a.textContent=author||"Penulis tidak diketahui";
+  const tag=document.createElement("span");tag.className="tag"+(borrow?" borrow":"");tag.textContent=(borrow?"Pinjam · ":"Gratis · ")+src;
+  const acts=document.createElement("div");acts.className="actions";
+  if(dl){const b=document.createElement("a");b.className="btn dl";b.href=dl;b.target="_blank";b.rel="noopener";b.textContent="Download EPUB";acts.appendChild(b);}
+  const p=document.createElement("a");p.className="btn alt";p.href=page;p.target="_blank";p.rel="noopener";p.textContent=borrow?"Pinjam":"Halaman buku";acts.appendChild(p);
+  info.append(t,a,tag,acts);li.append(img,info);return li;
+}
+async function getJSON(url){const c=new AbortController();const tm=setTimeout(()=>c.abort(),15000);
+  try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error(r.status);return await r.json();}finally{clearTimeout(tm);}}
+async function searchOL(q){
+  const d=await getJSON(`https://openlibrary.org/search.json?q=${enc(q)}&has_fulltext=true&limit=20&fields=key,title,author_name,ia,ebook_access,cover_i`);
+  return (d.docs||[]).filter(x=>x.ia&&x.ia.length&&(x.ebook_access==="public"||x.ebook_access==="borrowable")).map(x=>{
+    const pub=x.ebook_access==="public";const id=x.ia[0];
+    return {title:x.title,author:(x.author_name||[]).slice(0,2).join(", "),cover:x.cover_i?`https://covers.openlibrary.org/b/id/${x.cover_i}-S.jpg`:"",
+      dl:pub?`https://archive.org/download/${id}/${id}.epub`:"",page:pub?`https://archive.org/details/${id}`:`https://openlibrary.org${x.key}`,borrow:!pub,src:"Open Library"};});
+}
+async function searchIA(q){
+  const query=`(${q}) AND mediatype:texts AND format:EPUB AND NOT collection:(inlibrary OR printdisabled OR lendinglibrary)`;
+  const d=await getJSON(`https://archive.org/advancedsearch.php?q=${enc(query)}&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator&rows=15&output=json`);
+  return ((d.response||{}).docs||[]).map(x=>({title:x.title||x.identifier,author:[].concat(x.creator||[]).slice(0,2).join(", "),
+    cover:`https://archive.org/services/img/${x.identifier}`,dl:`https://archive.org/download/${x.identifier}/${x.identifier}.epub`,
+    page:`https://archive.org/details/${x.identifier}`,borrow:false,src:"Internet Archive"}));
+}
+let run=0;
+async function search(q){
+  q=q.trim();if(!q)return;const me=++run;renderSources(q);
+  $("results").innerHTML="";$("status").textContent="Mencari…";
+  const res=await Promise.allSettled([searchOL(q),searchIA(q)]);if(me!==run)return;
+  const ok=res.filter(r=>r.status==="fulfilled");
+  if(!ok.length){$("status").textContent="Pencarian langsung tidak bisa dijalankan di sini. Pakai tombol sumber di bawah, hasilnya terbuka di tab baru.";return;}
+  const seen=new Set();const items=ok.flatMap(r=>r.value).filter(x=>{const k=x.page;if(seen.has(k))return false;seen.add(k);return true;})
+    .sort((a,b)=>a.borrow-b.borrow);
+  if(!items.length){$("status").textContent=`Tidak ada EPUB gratis untuk "${q}". Coba judul bahasa Inggris, atau cek sumber di bawah.`;return;}
+  const free=items.filter(x=>!x.borrow).length;
+  $("status").textContent=`${free} bisa diunduh, ${items.length-free} bisa dipinjam.`;
+  items.forEach(x=>$("results").appendChild(card(x)));
+}
+$("f").addEventListener("submit",e=>{e.preventDefault();search($("q").value);});
+search($("q").value);
+</script>
+
+</body>
+</html>
