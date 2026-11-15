@@ -120,6 +120,11 @@ async function searchIA(q){
     cover:`https://archive.org/services/img/${x.identifier}`,dl:`https://archive.org/download/${x.identifier}/${x.identifier}.epub`,
     page:`https://archive.org/details/${x.identifier}`,borrow:false,src:"Internet Archive"}));
 }
+async function resolveEpub(id){
+  try{const d=await getJSON(`https://archive.org/metadata/${enc(id)}/files`);
+    const f=(d.result||[]).find(x=>/\.epub$/i.test(x.name||""));
+    return f?`https://archive.org/download/${enc(id)}/${f.name.split("/").map(enc).join("/")}`:"";}catch(e){return "";}
+}
 let run=0;
 async function search(q){
   q=q.trim();if(!q)return;const me=++run;renderSources(q);
@@ -130,9 +135,14 @@ async function search(q){
   const seen=new Set();const items=ok.flatMap(r=>r.value).filter(x=>{const k=x.page;if(seen.has(k))return false;seen.add(k);return true;})
     .sort((a,b)=>a.borrow-b.borrow);
   if(!items.length){$("status").textContent=`Tidak ada EPUB gratis untuk "${q}". Coba judul bahasa Inggris, atau cek sumber di bawah.`;return;}
-  const free=items.filter(x=>!x.borrow).length;
-  $("status").textContent=`${free} bisa diunduh, ${items.length-free} bisa dipinjam.`;
-  items.forEach(x=>$("results").appendChild(card(x)));
+  $("status").textContent="Mengecek file EPUB…";
+  await Promise.all(items.map(async x=>{if(x.dl){const id=x.page.split("/details/")[1];x.dl=await resolveEpub(id);}}));
+  if(me!==run)return;
+  const final=items.filter(x=>x.dl||x.borrow);
+  if(!final.length){$("status").textContent=`Tidak ada EPUB gratis untuk "${q}". Coba judul bahasa Inggris, atau cek sumber di bawah.`;return;}
+  const free=final.filter(x=>!x.borrow).length;
+  $("status").textContent=`${free} bisa diunduh, ${final.length-free} bisa dipinjam.`;
+  final.forEach(x=>$("results").appendChild(card(x)));
 }
 $("f").addEventListener("submit",e=>{e.preventDefault();search($("q").value);});
 search($("q").value);
