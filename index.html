@@ -87,6 +87,8 @@ const SOURCES=[
   {n:"Google (sumber legal)",d:"EPUB/PDF di archive.org, Gutenberg, .edu, .gov",u:q=>`https://www.google.com/search?q=${enc(q+" filetype:epub OR filetype:pdf (site:archive.org OR site:gutenberg.org OR site:standardebooks.org OR site:.edu OR site:.gov)")}`},
   {n:"Faded Page",d:"Domain publik Kanada",u:q=>`https://www.fadedpage.com/csearch.php?title=${enc(q)}`},
   {n:"Smashwords",d:"Ebook gratis dari penulis",u:q=>`https://www.smashwords.com/books/search?query=${enc(q)}&price=free`},
+  {n:"AO3",d:"Fanfiksi gratis, ada kudos & komentar, unduh EPUB",u:q=>`https://archiveofourown.org/works/search?work_search%5Bquery%5D=${enc(q)}&work_search%5Bsort_column%5D=kudos_count`},
+  {n:"Royal Road",d:"Novel web, ada rating & komentar",u:q=>`https://www.royalroad.com/fictions/search?title=${enc(q)}&orderBy=rating`},
   {n:"Google Play Books",d:"Beli/sampel resmi",u:q=>`https://play.google.com/store/search?q=${enc(q)}&c=books`},
   {n:"iPusnas",d:"Pinjam gratis (aplikasi)",u:()=>`https://ipusnas.id/`}
 ];
