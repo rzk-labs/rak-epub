@@ -73,7 +73,7 @@ button{font:inherit;font-weight:600;padding:12px 18px;border:0;border-radius:10p
     <div class="sources" id="sources"></div>
   </section>
 
-  <p class="note">Hanya sumber legal: buku domain publik bisa langsung diunduh; buku berhak cipta biasanya hanya bisa dipinjam. Untuk buku Indonesia terbaru, coba aplikasi <b>iPusnas</b> (pinjam gratis dari Perpusnas).</p>
+  <p class="note"><b>Tips iPhone/Safari:</b> kalau halaman kosong setelah klik Download EPUB, tahan lama tombolnya lalu pilih <b>Unduh File Tertaut</b> (atau <b>Buka di Buku</b>). File lalu muncul di Unduhan / Apple Books.<br><br>Hanya sumber legal: buku domain publik bisa langsung diunduh; buku berhak cipta biasanya hanya bisa dipinjam. Untuk buku Indonesia terbaru, coba aplikasi <b>iPusnas</b> (pinjam gratis dari Perpusnas).</p>
 </div>
 
 <script>
@@ -105,7 +105,7 @@ function card({title,author,cover,dl,page,borrow,src}){
   const a=document.createElement("p");a.className="a";a.textContent=author||"Penulis tidak diketahui";
   const tag=document.createElement("span");tag.className="tag"+(borrow?" borrow":"");tag.textContent=(borrow?"Pinjam · ":"Gratis · ")+src;
   const acts=document.createElement("div");acts.className="actions";
-  if(dl){const b=document.createElement("a");b.className="btn dl";b.href=dl;b.setAttribute("download","");b.rel="noopener";b.textContent="Download EPUB";acts.appendChild(b);}
+  if(dl){const b=document.createElement("a");b.className="btn dl";b.href=dl;b.target="_blank";b.rel="noopener";b.textContent="Download EPUB";acts.appendChild(b);}
   const p=document.createElement("a");p.className="btn alt";p.href=page;p.target="_blank";p.rel="noopener";p.textContent=borrow?"Pinjam":"Halaman buku";acts.appendChild(p);
   info.append(t,a,tag,acts);li.append(img,info);return li;
 }
