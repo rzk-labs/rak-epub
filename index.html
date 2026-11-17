@@ -105,7 +105,7 @@ function card({title,author,cover,dl,page,borrow,src}){
   const a=document.createElement("p");a.className="a";a.textContent=author||"Penulis tidak diketahui";
   const tag=document.createElement("span");tag.className="tag"+(borrow?" borrow":"");tag.textContent=(borrow?"Pinjam · ":"Gratis · ")+src;
   const acts=document.createElement("div");acts.className="actions";
-  if(dl){const b=document.createElement("a");b.className="btn dl";b.href=dl;b.target="_blank";b.rel="noopener";b.textContent="Download EPUB";acts.appendChild(b);}
+  if(dl){const b=document.createElement("a");b.className="btn dl";b.href=dl;b.setAttribute("download","");b.rel="noopener";b.textContent="Download EPUB";acts.appendChild(b);}
   const p=document.createElement("a");p.className="btn alt";p.href=page;p.target="_blank";p.rel="noopener";p.textContent=borrow?"Pinjam":"Halaman buku";acts.appendChild(p);
   info.append(t,a,tag,acts);li.append(img,info);return li;
 }
@@ -127,7 +127,8 @@ async function searchIA(q){
 }
 async function resolveEpub(id){
   try{const d=await getJSON(`https://archive.org/metadata/${enc(id)}/files`);
-    const f=(d.result||[]).find(x=>/\.epub$/i.test(x.name||""));
+    const eps=(d.result||[]).filter(x=>/\.epub$/i.test(x.name||"")&&!/_lcp\.epub$/i.test(x.name));
+    const f=eps.find(x=>x.name===id+".epub")||eps[0];
     return f?`https://archive.org/download/${enc(id)}/${f.name.split("/").map(enc).join("/")}`:"";}catch(e){return "";}
 }
 let run=0;
